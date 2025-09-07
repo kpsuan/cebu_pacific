@@ -1,0 +1,31 @@
+<h1>Passenger Information</h1>
+
+<p>
+  <strong>Flight:</strong>
+  <%= @flight.departure_airport.code %> → <%= @flight.arrival_airport.code %><br>
+  <strong>Date:</strong>
+  <%= @flight.start_time.strftime("%B %d, %Y %l:%M %p") %> |
+  <strong>Duration:</strong> <%= @flight.duration %> min
+</p>
+
+<%= form_with model: @booking, local: true do |f| %>
+  <%= f.hidden_field :flight_id, value: @flight.id %>
+
+  <% @booking.passengers.each_with_index do |pax, i| %>
+    <fieldset style="margin:12px 0; padding: 12px; border: 1px solid #ddd;">
+      <legend>Passenger <%= i + 1 %></legend>
+      <%= f.fields_for :passengers, pax do |p| %>
+        <div>
+          <%= p.label :name %><br>
+          <%= p.text_field :name %>
+        </div>
+        <div>
+          <%= p.label :email %><br>
+          <%= p.email_field :email %>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+
+  <%= f.submit "Book Flight" %>
+<% end %>

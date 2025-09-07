@@ -1,0 +1,54 @@
+<h1>Find a Flight</h1>
+
+<%= form_with url: flights_path, method: :get, local: true do %>
+  <div>
+    <label>From</label>
+    <%= select_tag :departure_airport_id,
+      options_from_collection_for_select(@airports, :id, :code, params[:departure_airport_id]),
+      include_blank: "Select departure" %>
+  </div>
+
+  <div>
+    <label>To</label>
+    <%= select_tag :arrival_airport_id,
+      options_from_collection_for_select(@airports, :id, :code, params[:arrival_airport_id]),
+      include_blank: "Select arrival" %>
+  </div>
+
+  <div>
+    <label>Date</label>
+    <%= select_tag :date,
+      options_for_select(@available_dates.map { |d| [d.to_s, d] }, params[:date]),
+      include_blank: "Select date" %>
+  </div>
+
+  <div>
+    <label>Number of Passengers</label>
+    <%= number_field_tag :num_tickets, params[:num_tickets] || 1, min: 1 %>
+  </div>
+
+  <%= submit_tag "Search Flights" %>
+<% end %>
+
+<hr>
+
+<% if @flights.any? %>
+  <h2>Available Flights</h2>
+
+  <%= form_with url: new_booking_path, method: :get, local: true do %>
+    <% @flights.each do |flight| %>
+      <div>
+        <%= radio_button_tag :flight_id, flight.id %>
+        <%= flight.start_time.strftime("%B %d, %Y %H:%M") %>
+        (<%= flight.departure_airport.code %> → <%= flight.arrival_airport.code %>)
+      </div>
+    <% end %>
+
+    <!-- carry num_tickets to bookings#new -->
+    <%= hidden_field_tag :num_tickets, params[:num_tickets] %>
+
+    <%= submit_tag "Choose Flight" %>
+  <% end %>
+<% elsif params[:departure_airport_id].present? %>
+  <p>No flights found for your search.</p>
+<% end %>
